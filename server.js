@@ -1,13 +1,11 @@
 const express = require("express");
 const cors = require("cors");
-const fetch = require("node-fetch");
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const path = require("path");
 
 const app = express();
-const port = 3001; // Port for our Express server
+const port = 3001;
 const host = '0.0.0.0';
-
-
 
 app.use(cors());
 app.use(express.json());
@@ -39,5 +37,5 @@ app.post("/api/generate", async (req, res) => {
 });
 
 app.listen(port, host, () => {
-    console.log(`Express proxy server listening at http://${host}:${port}`);
+  console.log(`Express proxy server listening at http://${host}:${port}`);
 });
