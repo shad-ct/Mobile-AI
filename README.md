@@ -3,11 +3,18 @@
 https://play.google.com/store/apps/details?id=com.termux
 ```
 
+
 # In termux : 
 ```
 pkg update && pkg upgrade
 pkg install git
 pkg install nodejs
+pkg install ollama
+```
+
+# Install ollama model
+```
+ollama run <model name>
 ```
 
 
