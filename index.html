@@ -1,209 +1,152 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ollama Chat</title>
-    <!-- Tailwind CSS CDN for styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      body {
-        font-family: "Inter", sans-serif;
-      }
-      /* Custom animation for the typing indicator */
-      @keyframes pulse-fast {
-        0%,
-        100% {
-          opacity: 1;
-        }
-        50% {
-          opacity: 0.5;
-        }
-      }
-      .animate-pulse-fast {
-        animation: pulse-fast 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-      }
-      .animation-delay-150 {
-        animation-delay: 150ms;
-      }
-      .animation-delay-300 {
-        animation-delay: 300ms;
-      }
-    </style>
-  </head>
-  <body class="bg-gray-900 text-gray-100 p-4 flex flex-col h-screen">
+    <!-- Link to our local CSS file -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
     <!-- Configuration Header -->
-    <div
-      class="flex flex-col sm:flex-row items-center justify-between p-4 bg-gray-800 rounded-xl shadow-lg mb-4"
-    >
-      <div class="flex-1 w-full sm:w-auto mb-2 sm:mb-0 sm:mr-4">
-        <label for="ip-input" class="text-sm font-medium text-gray-400"
-          >Ollama Host IP</label
-        >
-        <input
-          type="text"
-          id="ip-input"
-          value="192.168.1.100"
-          class="w-full px-3 py-2 mt-1 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="e.g., 192.168.1.100"
-        />
-      </div>
-      <div class="flex-1 w-full sm:w-auto">
-        <label for="model-input" class="text-sm font-medium text-gray-400"
-          >Model Name</label
-        >
-        <input
-          type="text"
-          id="model-input"
-          value="qwen2.5-coder:0.5b"
-          class="w-full px-3 py-2 mt-1 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="e.g., llama3"
-        />
-      </div>
+    <div class="config-header">
+        <div class="input-group mr-4">
+            <label for="ip-input">Ollama Host IP</label>
+            <input type="text" id="ip-input" value="192.168.1.100"
+                   placeholder="e.g., 192.168.1.100">
+        </div>
+        <div class="input-group">
+            <label for="model-input">Model Name</label>
+            <input type="text" id="model-input" value="qwen2.5-coder:0.5b"
+                   placeholder="e.g., llama3">
+        </div>
     </div>
 
     <!-- Chat Messages Display -->
-    <div
-      id="chat-container"
-      class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-800 rounded-xl shadow-inner mb-4"
-    >
-      <div id="placeholder" class="flex justify-center items-center h-full">
-        <span class="text-gray-500 text-center text-lg">
-          Start a conversation by typing a message below.
-        </span>
-      </div>
+    <div id="chat-container" class="chat-container">
+        <div id="placeholder" class="placeholder">
+            <span>
+                Start a conversation by typing a message below.
+            </span>
+        </div>
     </div>
 
     <!-- Message Input Form -->
-    <form id="chat-form" class="flex p-4 bg-gray-800 rounded-xl shadow-lg">
-      <input
-        type="text"
-        id="message-input"
-        class="flex-1 px-4 py-2 rounded-l-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        placeholder="Type your message..."
-      />
-      <button
-        type="submit"
-        id="send-button"
-        class="px-6 py-2 rounded-r-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 disabled:bg-gray-600"
-      >
-        Send
-      </button>
+    <form id="chat-form" class="chat-form">
+        <input type="text" id="message-input"
+               placeholder="Type your message...">
+        <button type="submit" id="send-button">
+            Send
+        </button>
     </form>
 
     <script>
-      const chatForm = document.getElementById("chat-form");
-      const messageInput = document.getElementById("message-input");
-      const ipInput = document.getElementById("ip-input");
-      const modelInput = document.getElementById("model-input");
-      const chatContainer = document.getElementById("chat-container");
-      const sendButton = document.getElementById("send-button");
-      const placeholder = document.getElementById("placeholder");
-      let isLoading = false;
+        const chatForm = document.getElementById('chat-form');
+        const messageInput = document.getElementById('message-input');
+        const ipInput = document.getElementById('ip-input');
+        const modelInput = document.getElementById('model-input');
+        const chatContainer = document.getElementById('chat-container');
+        const sendButton = document.getElementById('send-button');
+        const placeholder = document.getElementById('placeholder');
+        let isLoading = false;
 
-      const addMessage = (content, role) => {
-        const messageDiv = document.createElement("div");
-        messageDiv.className = `flex ${
-          role === "user" ? "justify-end" : "justify-start"
-        }`;
+        const addMessage = (content, role) => {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
 
-        const contentDiv = document.createElement("div");
-        contentDiv.className = `max-w-[70%] px-4 py-2 rounded-xl shadow-md whitespace-pre-wrap ${
-          role === "user"
-            ? "bg-blue-600 text-white rounded-br-none"
-            : "bg-gray-700 text-gray-100 rounded-bl-none"
-        }`;
-        contentDiv.innerText = content;
+            const contentDiv = document.createElement('div');
+            contentDiv.className = `message-bubble ${role}`;
+            contentDiv.innerText = content;
 
-        messageDiv.appendChild(contentDiv);
-        chatContainer.appendChild(messageDiv);
-        chatContainer.scrollTop = chatContainer.scrollHeight; // Auto-scroll
-      };
+            messageDiv.appendChild(contentDiv);
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight; // Auto-scroll
+        };
 
-      const showTypingIndicator = () => {
-        const indicatorDiv = document.createElement("div");
-        indicatorDiv.id = "typing-indicator";
-        indicatorDiv.className = "flex justify-start";
-        indicatorDiv.innerHTML = `
-                <div class="max-w-[70%] px-4 py-2 rounded-xl shadow-md bg-gray-700 text-gray-100 rounded-bl-none">
-                    <div class="flex items-center space-x-2">
+        const showTypingIndicator = () => {
+            const indicatorDiv = document.createElement('div');
+            indicatorDiv.id = 'typing-indicator';
+            indicatorDiv.className = 'message model';
+            indicatorDiv.innerHTML = `
+                <div class="message-bubble model">
+                    <div class="typing-indicator-dots">
                         <div class="w-2 h-2 rounded-full bg-gray-400 animate-pulse-fast"></div>
                         <div class="w-2 h-2 rounded-full bg-gray-400 animate-pulse-fast animation-delay-150"></div>
                         <div class="w-2 h-2 rounded-full bg-gray-400 animate-pulse-fast animation-delay-300"></div>
                     </div>
                 </div>
             `;
-        chatContainer.appendChild(indicatorDiv);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-      };
+            chatContainer.appendChild(indicatorDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        };
 
-      const hideTypingIndicator = () => {
-        const indicator = document.getElementById("typing-indicator");
-        if (indicator) {
-          indicator.remove();
-        }
-      };
+        const hideTypingIndicator = () => {
+            const indicator = document.getElementById('typing-indicator');
+            if (indicator) {
+                indicator.remove();
+            }
+        };
 
-      chatForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const message = messageInput.value.trim();
-        if (!message || isLoading) return;
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const message = messageInput.value.trim();
+            if (!message || isLoading) return;
 
-        // Hide placeholder if it exists
-        if (placeholder) {
-          placeholder.classList.add("hidden");
-        }
+            // Hide placeholder if it exists
+            if (placeholder) {
+                placeholder.classList.add('hidden');
+            }
 
-        isLoading = true;
-        sendButton.disabled = true;
-        messageInput.disabled = true;
+            isLoading = true;
+            sendButton.disabled = true;
+            messageInput.disabled = true;
 
-        addMessage(message, "user");
-        messageInput.value = "";
+            addMessage(message, 'user');
+            messageInput.value = '';
 
-        const ipAddress = ipInput.value;
-        const modelName = modelInput.value;
-        showTypingIndicator();
+            const ipAddress = ipInput.value;
+            const modelName = modelInput.value;
+            showTypingIndicator();
 
-        try {
-          const response = await fetch("http://localhost:3001/api/generate", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              ipAddress: ipAddress,
-              modelName: modelName,
-              prompt: message,
-            }),
-          });
+            try {
+                const response = await fetch(`http://${ipAddress}:3001/api/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        ipAddress: ipAddress,
+                        modelName: modelName,
+                        prompt: message
+                    })
+                });
 
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
 
-          const data = await response.json();
-          hideTypingIndicator();
+                const data = await response.json();
+                hideTypingIndicator();
 
-          if (data.response) {
-            addMessage(data.response, "model");
-          } else if (data.error) {
-            addMessage(`Error: ${data.error}`, "model");
-          } else {
-            addMessage("An unexpected error occurred.", "model");
-          }
-        } catch (error) {
-          console.error("Fetch error:", error);
-          hideTypingIndicator();
-          addMessage(
-            "An error occurred. Please check your Express server and network connection.",
-            "model"
-          );
-        } finally {
-          isLoading = false;
-          sendButton.disabled = false;
-          messageInput.disabled = false;
-          messageInput.focus();
-        }
-      });
+                if (data.response) {
+                    addMessage(data.response, 'model');
+                } else if (data.error) {
+                    addMessage(`Error: ${data.error}`, 'model');
+                } else {
+                    addMessage('An unexpected error occurred.', 'model');
+                }
+
+            } catch (error) {
+                console.error('Fetch error:', error);
+                hideTypingIndicator();
+                addMessage('An error occurred. Please check your Express server and network connection.', 'model');
+            } finally {
+                isLoading = false;
+                sendButton.disabled = false;
+                messageInput.disabled = false;
+                messageInput.focus();
+            }
+        });
+
     </script>
-  </body>
+</body>
 </html>
