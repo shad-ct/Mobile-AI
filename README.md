@@ -87,3 +87,9 @@ http://<your-ip-address>:3001
 Replace `<your-ip-address>` with the IP you found using `ifconfig`.
 
 ---
+
+
+# Demo:
+
+<img width="1863" height="1079" alt="image" src="https://github.com/user-attachments/assets/590e835b-659b-4fc3-ba09-1183feb9b8a9" />
+
